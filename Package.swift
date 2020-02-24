@@ -4,20 +4,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "Template",
+    name: "DataSource",
+    platforms: [
+        .iOS(.v10),
+        .tvOS(.v10),
+    ],
     products: [
         .library(
-            name: "Template",
-            targets: ["Template"]),
+            name: "DataSource",
+            targets: ["DataSource"]),
     ],
     dependencies: [
     ],
     targets: [
         .target(
-            name: "Template",
+            name: "DataSource",
             dependencies: []),
         .testTarget(
-            name: "TemplateTests",
-            dependencies: ["Template"]),
+            name: "DataSourceTests",
+            dependencies: ["DataSource"]),
     ]
 )

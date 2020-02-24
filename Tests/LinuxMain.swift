@@ -1,7 +1,13 @@
+//
+// Copyright © 2020. Orynko Artem
+//
+// MIT license, see LICENSE file for details
+//
+
 import XCTest
 
-import TemplateTests
+import DataSourceTests
 
 var tests = [XCTestCaseEntry]()
-tests += TemplateTests.allTests()
+tests += DataSourceTests.allTests()
 XCTMain(tests)
