@@ -6,22 +6,55 @@
 
 import UIKit
 
-public protocol DataSourceable: AnyObject {
-	associatedtype Item
+public typealias GeneralDataSource = DataSource
 
-	func numberOfSections() -> Int
-	func numberOfItemsInSection(_ section: Int) -> Int
-	func item(at indexPath: IndexPath) -> Item
+public protocol DataSourceable: AnyObject {
+    associatedtype SectionType: SectionInfo
+
+    var sections: [SectionType] { get set }
+
+    func numberOfSections() -> Int
+    func numberOfItemsInSection(_ section: Int) -> Int
+    func section(at index: Int) -> SectionType
+    func item(at indexPath: IndexPath) -> SectionType.Item
 }
 
-open class DataSource<Item, Cell: Identifiable, ReusableType: Reusable>: NSObject {
-	@usableFromInline
-	internal let configurator: AnyConfigurator<Item, Cell, ReusableType>
+open class DataSource<SectionType: SectionInfo, CellType: Identifiable, ViewType>:
+    NSObject, DataSourceable, Configurable {
+    public var sections: [SectionType]
 
-	@usableFromInline
-	internal init<C: Configurable>(_ configurator: C) where Item == C.Item, Cell == C.Cell, ReusableType == C.ReusableType {
-		self.configurator = AnyConfigurator(configurator)
+    public final let configurator: (CellType, SectionType.Item, IndexPath, ViewType) -> CellType
 
-		super.init()
-	}
+    @inline(__always)
+    @inlinable
+    public init(
+        sections: [SectionType] = [],
+        _ cellConfigure: @escaping (CellType, SectionType.Item, IndexPath, ViewType) -> CellType
+    ) {
+        self.sections = sections
+        self.configurator = cellConfigure
+    }
+
+    @inline(__always)
+    @inlinable
+    open func numberOfSections() -> Int { sections.count }
+
+    @inline(__always)
+    @inlinable
+    open func numberOfItemsInSection(_ section: Int) -> Int { sections[section].numberOfItems }
+
+    @inline(__always)
+    @inlinable
+    open func section(at index: Int) -> SectionType { sections[index] }
+
+    @inline(__always)
+    @inlinable
+    open func item(at indexPath: IndexPath) -> SectionType.Item { sections.item(at: indexPath) }
+}
+
+extension Array where Element: SectionInfo {
+    @usableFromInline
+    internal func item(at indexPath: IndexPath) -> Element.Item {
+        self[indexPath.section].items[indexPath.row]
+    }
 }
